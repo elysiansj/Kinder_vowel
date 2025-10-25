@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>구름 위 모음 친구들</title>
+<style>
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Comic Sans MS', 'Nanum Gothic', sans-serif;
+    background: linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 50%, #FFE4E1 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    touch-action: manipulation;
+  }
+  
+  /* 떠다니는 구름들 */
+  .cloud {
+    position: absolute;
+    background: white;
+    border-radius: 100px;
+    opacity: 0.8;
+    animation: float 20s infinite ease-in-out;
+  }
+  
+  .cloud::before,
+  .cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 100px;
+  }
+  
+  .cloud1 {
+    width: 100px;
+    height: 40px;
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+  }
+  
+  .cloud1::before {
+    width: 50px;
+    height: 50px;
+    top: -25px;
+    left: 10px;
+  }
+  
+  .cloud1::after {
+    width: 60px;
+    height: 40px;
+    top: -15px;
+    right: 10px;
+  }
+  
+  .cloud2 {
+    width: 120px;
+    height: 50px;
+    top: 20%;
+    right: 15%;
+    animation-delay: -5s;
+  }
+  
+  .cloud2::before {
+    width: 60px;
+    height: 60px;
+    top: -30px;
+    left: 15px;
+  }
+  
+  .cloud2::after {
+    width: 70px;
+    height: 50px;
+    top: -20px;
+    right: 15px;
+  }
+  
+  .cloud3 {
+    width: 80px;
+    height: 35px;
+    bottom: 15%;
+    left: 20%;
+    animation-delay: -10s;
+  }
+  
+  .cloud3::before {
+    width: 40px;
+    height: 40px;
+    top: -20px;
+    left: 10px;
+  }
+  
+  .cloud3::after {
+    width: 50px;
+    height: 35px;
+    top: -15px;
+    right: 10px;
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px) translateX(0px);
+    }
+    25% {
+      transform: translateY(-20px) translateX(10px);
+    }
+    50% {
+      transform: translateY(-10px) translateX(-10px);
+    }
+    75% {
+      transform: translateY(-25px) translateX(5px);
+    }
+  }
+  
+  /* 제목 */
+  .title {
+    position: absolute;
+    top: 30px;
+    text-align: center;
+    width: 100%;
+    z-index: 100;
+  }
+  
+  .title h1 {
+    margin: 0;
+    font-size: clamp(1.5em, 5vw, 2.5em);
+    color: #FF69B4;
+    text-shadow: 
+      3px 3px 0 #FFF,
+      4px 4px 0 #FFB6C1;
+    font-weight: bold;
+    animation: titleBounce 2s ease-in-out infinite;
+  }
+  
+  .title p {
+    margin: 10px 0 0 0;
+    font-size: clamp(0.9em, 3vw, 1.2em);
+    color: #FF1493;
+    text-shadow: 2px 2px 0 #FFF;
+    font-weight: bold;
+  }
+  
+  @keyframes titleBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  /* 메인 컨테이너 */
+  #gameContainer {
+    position: relative;
+    width: 90%;
+    max-width: 500px;
+    margin-top: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* 풍선 컨테이너 */
+  #balloonContainer {
+    position: relative;
+    width: min(350px, 90vw);
+    height: min(400px, 60vh);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 50px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  
+  /* 풍선 */
+  .balloon {
+    position: relative;
+    width: min(280px, 70vw);
+    height: min(320px, 50vh);
+    background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow: 
+      inset -20px -30px 50px rgba(255, 255, 255, 0.3),
+      0 20px 50px rgba(0, 0, 0, 0.2);
+    animation: balloonFloat 3s ease-in-out infinite;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .balloon::before {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 30px solid #FF1493;
+  }
+  
+  .balloon::after {
+    content: '';
+    position: absolute;
+    bottom: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100px;
+    background: repeating-linear-gradient(
+      to bottom,
+      #FFB6C1 0px,
+      #FFB6C1 5px,
+      transparent 5px,
+      transparent 10px
+    );
+  }
+  
+  @keyframes balloonFloat {
+    0%, 100% {
+      transform: translateY(0) rotate(-2deg);
+    }
+    50% {
+      transform: translateY(-20px) rotate(2deg);
+    }
+  }
+  
+  /* 이미지 */
+  .balloon img {
+    width: min(220px, 55vw);
+    height: min(220px, 55vw);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    object-fit: cover;
+    animation: imageAppear 0.6s ease-out;
+  }
+  
+  @keyframes imageAppear {
+    from {
+      opacity: 0;
+      transform: scale(0.5) rotate(-10deg);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+  
+  /* 풍선 안 모음 글자 */
+  .vowelInBalloon {
+    font-size: clamp(4em, 15vw, 8em);
+    color: #FFF;
+    font-weight: bold;
+    text-shadow: 
+      4px 4px 0 rgba(0, 0, 0, 0.2),
+      6px 6px 10px rgba(0, 0, 0, 0.3);
+    animation: vowelPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  @keyframes vowelPop {
+    0% {
+      transform: scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+  
+  /* 탭 힌트 */
+  .tapHint {
+    position: absolute;
+    bottom: -150px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(1em, 4vw, 1.5em);
+    color: #FF1493;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 #FFF;
+    animation: tapBounce 1.5s infinite;
+    white-space: nowrap;
+  }
+  
+  @keyframes tapBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-15px); }
+  }
+  
+  /* 완료 메시지 */
+  #congrats {
+    display: none;
+    text-align: center;
+    animation: celebration 1s ease-in-out;
+  }
+  
+  #congrats h2 {
+    font-size: clamp(2em, 8vw, 3.5em);
+    color: #FF69B4;
+    margin: 0;
+    text-shadow: 
+      4px 4px 0 #FFF,
+      5px 5px 0 #FFB6C1;
+    animation: celebrationBounce 0.8s ease-in-out infinite;
+  }
+  
+  #congrats p {
+    font-size: clamp(1.2em, 5vw, 2em);
+    color: #FF1493;
+    margin-top: 20px;
+    text-shadow: 2px 2px 0 #FFF;
+  }
+  
+  /* 다시하기 버튼 */
+  .restartButton {
+    margin-top: 30px;
+    padding: 15px 40px;
+    font-size: clamp(1.2em, 5vw, 1.8em);
+    font-weight: bold;
+    color: #FFF;
+    background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
+    border: 4px solid #FFF;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 
+      0 5px 15px rgba(255, 105, 180, 0.4),
+      inset 0 -3px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    font-family: 'Comic Sans MS', sans-serif;
+    touch-action: manipulation;
+  }
+  
+  .restartButton:hover {
+    transform: scale(1.1);
+    box-shadow: 
+      0 8px 20px rgba(255, 105, 180, 0.6),
+      inset 0 -3px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .restartButton:active {
+    transform: scale(0.95);
+  }
+  
+  @keyframes celebration {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  
+  @keyframes celebrationBounce {
+    0%, 100% { transform: scale(1) rotate(-3deg); }
+    50% { transform: scale(1.1) rotate(3deg); }
+  }
+  
+  /* 별 반짝임 */
+  .star {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #FFD700;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #FFD700;
+    animation: twinkle 2s infinite;
+  }
+  
+  .star:nth-child(1) { top: 15%; left: 20%; animation-delay: 0s; }
+  .star:nth-child(2) { top: 25%; right: 25%; animation-delay: 0.3s; }
+  .star:nth-child(3) { bottom: 30%; left: 15%; animation-delay: 0.6s; }
+  .star:nth-child(4) { top: 40%; right: 20%; animation-delay: 0.9s; }
+  .star:nth-child(5) { bottom: 20%; right: 30%; animation-delay: 1.2s; }
+  
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+  }
+</style>
+</head>
+<body>
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+<div class="cloud cloud3"></div>
+
+<div class="star"></div>
+<div class="star"></div>
+<div class="star"></div>
+<div class="star"></div>
+<div class="star"></div>
+
+<div class="title">
+  <h1>🎈 휄로쉽 한글학교 (나비반) 🎈</h1>
+  <p>made by 이수정</p>
+</div>
+
+<div id="gameContainer">
+  <div id="balloonContainer"></div>
+  <div id="congrats">
+    <h2>🎉 잘했어요! 🎉</h2>
+    <p>모든 모음을 배웠어요! 👏</p>
+    <button class="restartButton" onclick="restartGame()">🎈 다시 하기 🎈</button>
+  </div>
+</div>
+
+<script>
+// 효과음 생성 (Web Audio API)
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContext();
+
+function playPopSound() {
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  
+  oscillator.frequency.value = 800;
+  oscillator.type = 'sine';
+  
+  gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+  
+  oscillator.start(audioCtx.currentTime);
+  oscillator.stop(audioCtx.currentTime + 0.2);
+}
+
+function playSuccessSound() {
+  const times = [0, 0.1, 0.2];
+  const freqs = [523.25, 659.25, 783.99];
+  
+  times.forEach((time, i) => {
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    oscillator.frequency.value = freqs[i];
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime + time);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + time + 0.3);
+    
+    oscillator.start(audioCtx.currentTime + time);
+    oscillator.stop(audioCtx.currentTime + time + 0.3);
+  });
+}
+
+function playCelebrationSound() {
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => {
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      oscillator.frequency.value = 400 + Math.random() * 400;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+      
+      oscillator.start(audioCtx.currentTime);
+      oscillator.stop(audioCtx.currentTime + 0.3);
+    }, i * 100);
+  }
+}
+
+const gameData = [
+  {letter: "아", img: "images/a.png"},
+  {letter: "야", img: "images/ya.png"},
+  {letter: "어", img: "images/eo.png"},
+  {letter: "여", img: "images/yeo.png"},
+  {letter: "오", img: "images/o.png"},
+  {letter: "요", img: "images/yo.png"},
+  {letter: "우", img: "images/u.png"},
+  {letter: "유", img: "images/yu.png"},
+  {letter: "으", img: "images/eu.png"},
+  {letter: "이", img: "images/i.png"}
+];
+
+let used = [];
+let shuffledData = [];
+let balloonContainer;
+const congrats = document.getElementById('congrats');
+let showingVowel = false;
+
+// 무지개 색상 풍선
+const balloonColors = [
+  'linear-gradient(135deg, #FF6B9D 0%, #C06C84 100%)',
+  'linear-gradient(135deg, #FFA07A 0%, #FF7F50 100%)',
+  'linear-gradient(135deg, #FFD93D 0%, #FFC107 100%)',
+  'linear-gradient(135deg, #6BCF7F 0%, #4CAF50 100%)',
+  'linear-gradient(135deg, #4FC3F7 0%, #2196F3 100%)',
+  'linear-gradient(135deg, #BA68C8 0%, #9C27B0 100%)',
+  'linear-gradient(135deg, #FF8A80 0%, #FF5252 100%)',
+  'linear-gradient(135deg, #A7FFEB 0%, #1DE9B6 100%)',
+  'linear-gradient(135deg, #B39DDB 0%, #673AB7 100%)',
+  'linear-gradient(135deg, #FFB74D 0%, #FF9800 100%)'
+];
+
+let currentItem = null;
+let colorIndex = 0;
+let currentIndex = 0;
+
+// 배열 섞기 함수
+function shuffleArray(array) {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+}
+
+// 게임 초기화
+function initGame() {
+  balloonContainer = document.getElementById('balloonContainer');
+  currentIndex = 0;
+  showingVowel = false;
+  shuffledData = shuffleArray(gameData);
+  balloonContainer.style.display = 'flex';
+  congrats.style.display = 'none';
+  showImage();
+}
+
+// 게임 재시작
+function restartGame() {
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  playPopSound();
+  initGame();
+}
+
+// 모바일 터치 이벤트 처리
+function handleInteraction(callback) {
+  return function(e) {
+    e.preventDefault();
+    // Audio Context 시작 (사용자 인터랙션 필요)
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    callback();
+  };
+}
+
+function showImage() {
+  balloonContainer = document.getElementById('balloonContainer');
+  
+  if (currentIndex >= shuffledData.length) {
+    balloonContainer.style.display = 'none';
+    congrats.style.display = 'block';
+    playCelebrationSound();
+    return;
+  }
+  
+  currentItem = shuffledData[currentIndex];
+  colorIndex = currentIndex;
+  currentIndex++;
+  
+  showingVowel = false;
+  
+  playPopSound();
+  
+  // 풍선에 이미지 표시
+  balloonContainer.innerHTML = `
+    <div class="balloon" style="background: ${balloonColors[colorIndex]}">
+      <img src="${currentItem.img}" alt="${currentItem.letter}">
+    </div>
+    <div class="tapHint">👆 풍선을 터치해보세요!</div>
+  `;
+  
+  // 새로운 클릭 핸들러만 등록 (once 옵션 사용)
+  const touchHandler = handleInteraction(() => {
+    if (!showingVowel) {
+      showVowel();
+    }
+  });
+  
+  balloonContainer.addEventListener('touchend', touchHandler, {passive: false, once: true});
+  balloonContainer.addEventListener('click', touchHandler, {once: true});
+}
+
+function showVowel() {
+  balloonContainer = document.getElementById('balloonContainer');
+  showingVowel = true;
+  
+  playSuccessSound();
+  
+  // 풍선 안에 모음 글자 표시
+  balloonContainer.innerHTML = `
+    <div class="balloon" style="background: ${balloonColors[colorIndex]}">
+      <div class="vowelInBalloon">${currentItem.letter}</div>
+    </div>
+    <div class="tapHint">👆 다음 문제로!</div>
+  `;
+  
+  // 새로운 클릭 핸들러만 등록 (once 옵션 사용)
+  const touchHandler = handleInteraction(() => {
+    if (showingVowel) {
+      showImage();
+    }
+  });
+  
+  balloonContainer.addEventListener('touchend', touchHandler, {passive: false, once: true});
+  balloonContainer.addEventListener('click', touchHandler, {once: true});
+}
+
+// 게임 시작
+initGame();
+</script>
+</body>
+</html>
